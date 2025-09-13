@@ -10,14 +10,14 @@ kolam_type = st.selectbox(
     "Choose Kolam Type:",
     ["Straight Lines", "Connected Diamonds", "Diamond with Arcs", "Loops/Arcs", "Mixed"]
 )
-size = st.slider("Grid Size (dots per side):", 3, 10, 6)
+size = st.slider("Grid Size (dots per side):", 4, 10, 6)
 line_color = st.color_picker("Kolam Line Color:", "#B22222")
 dot_color = st.color_picker("Dot Color:", "#000000")
 bg_color = st.color_picker("Background Color:", "#FFFFFF")
 line_width = st.slider("Line Width:", 1.0, 5.0, 2.0)
 show_dots = st.checkbox("Show Dots", value=True)
 
-# === Utility Functions ===
+# === Drawing Functions ===
 def draw_diamond(ax, x, y, s=1):
     pts = [(x, y+s/2), (x+s/2, y), (x, y-s/2), (x-s/2, y), (x, y+s/2)]
     xs, ys = zip(*pts)
@@ -41,9 +41,10 @@ def generate_kolam(n):
     ax.set_facecolor(bg_color)
     ax.axis("off")
     spacing = 1
-    r = 0.4  # Arc radius
-    offset = 0.05
+    r = 0.4     # Arc radius
+    offset = 0.05  # Slight inward offset
 
+    # Draw dots
     if show_dots:
         for i in range(n):
             for j in range(n):
@@ -58,19 +59,26 @@ def generate_kolam(n):
                 draw_diamond(ax, (i+0.5)*spacing, (j+0.5)*spacing, s=spacing)
 
     elif kolam_type == "Diamond with Arcs":
+        # Draw diamonds
         for i in range(n-1):
             for j in range(n-1):
                 draw_diamond(ax, (i+0.5)*spacing, (j+0.5)*spacing, s=spacing)
 
-        # Arcs on borders, rotated 180°
-        for i in range(1, n-2):  # top border
-            draw_arc(ax, (i+0.5)*spacing, (n-1)+offset, r=r, start=180, end=360)
-        for i in range(1, n-2):  # bottom border
-            draw_arc(ax, (i+0.5)*spacing, -offset, r=r, start=0, end=180)
-        for j in range(1, n-2):  # left border
-            draw_arc(ax, -offset, (j+0.5)*spacing, r=r, start=90, end=270)
-        for j in range(1, n-2):  # right border
-            draw_arc(ax, (n-1)+offset, (j+0.5)*spacing, r=r, start=270, end=450)
+        # Top border arcs (face inward: curve downward)
+        for i in range(1, n-1):
+            draw_arc(ax, (i-0.5)*spacing, (n-1)+offset, r=r, start=180, end=360)
+
+        # Bottom border arcs (face inward: curve upward)
+        for i in range(1, n-1):
+            draw_arc(ax, (i-0.5)*spacing, -offset, r=r, start=0, end=180)
+
+        # Left border arcs (face inward: curve right)
+        for j in range(1, n-1):
+            draw_arc(ax, -offset, (j-0.5)*spacing, r=r, start=270, end=450)
+
+        # Right border arcs (face inward: curve left)
+        for j in range(1, n-1):
+            draw_arc(ax, (n-1)+offset, (j-0.5)*spacing, r=r, start=90, end=270)
 
     elif kolam_type == "Loops/Arcs":
         for i in range(n):
@@ -85,20 +93,18 @@ def generate_kolam(n):
                 else:
                     draw_loop(ax, (i+0.5)*spacing, (j+0.5)*spacing, r=spacing/2.2)
 
-        for i in range(1, n-2):
-            draw_arc(ax, (i+0.5)*spacing, (n-1)+offset, r=r, start=180, end=360)
-        for i in range(1, n-2):
-            draw_arc(ax, (i+0.5)*spacing, -offset, r=r, start=0, end=180)
-        for j in range(1, n-2):
-            draw_arc(ax, -offset, (j+0.5)*spacing, r=r, start=90, end=270)
-        for j in range(1, n-2):
-            draw_arc(ax, (n-1)+offset, (j+0.5)*spacing, r=r, start=270, end=450)
+        for i in range(1, n-1):
+            draw_arc(ax, (i-0.5)*spacing, (n-1)+offset, r=r, start=180, end=360)
+        for i in range(1, n-1):
+            draw_arc(ax, (i-0.5)*spacing, -offset, r=r, start=0, end=180)
+        for j in range(1, n-1):
+            draw_arc(ax, -offset, (j-0.5)*spacing, r=r, start=270, end=450)
+        for j in range(1, n-1):
+            draw_arc(ax, (n-1)+offset, (j-0.5)*spacing, r=r, start=90, end=270)
 
     ax.set_aspect("equal")
     st.pyplot(fig)
 
-# === Button ===
+# === Generate Button ===
 if st.button("🎨 Generate Kolam"):
     generate_kolam(size)
-
-
