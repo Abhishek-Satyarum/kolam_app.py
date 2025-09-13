@@ -8,10 +8,10 @@ st.title("✨ Kolam Pattern Generator")
 # === Sidebar Controls ===
 kolam_type = st.selectbox(
     "Choose Kolam Type:",
-    ["Straight Lines", "Connected Diamonds", "Connected Diamonds with Arcs", "Loops/Arcs", "Mixed"]
+    ["Straight Lines", "Connected Diamonds", "Diamond with Arcs", "Loops/Arcs", "Mixed"]
 )
-size = st.slider("Grid Size (dots per side):", 3, 10, 6)
-line_color = st.color_picker("Kolam Line Color:", "#B22222")
+size = st.slider("Grid Size (dots per side):", 4, 12, 7)
+line_color = st.color_picker("Kolam Line Color:", "#8B0000")
 dot_color = st.color_picker("Dot Color:", "#000000")
 bg_color = st.color_picker("Background Color:", "#FFFFFF")
 line_width = st.slider("Line Width:", 1.0, 5.0, 2.0)
@@ -23,8 +23,8 @@ def draw_diamond(ax, x, y, s=1):
     xs, ys = zip(*points)
     ax.plot(xs, ys, color=line_color, lw=line_width)
 
-def draw_arc(ax, x, y, r=0.5, start=0, end=90):
-    theta = np.linspace(np.radians(start), np.radians(end), 120)
+def draw_arc(ax, x, y, r=0.5, start=0, end=180):
+    theta = np.linspace(np.radians(start), np.radians(end), 100)
     ax.plot(x + r*np.cos(theta), y + r*np.sin(theta), color=line_color, lw=line_width)
 
 def draw_loop(ax, x, y, r=0.5):
@@ -36,8 +36,37 @@ def draw_straight(ax, n, spacing):
         ax.plot([0, (n-1)*spacing], [i*spacing, i*spacing], color=line_color, lw=line_width)
         ax.plot([i*spacing, i*spacing], [0, (n-1)*spacing], color=line_color, lw=line_width)
 
+def draw_border_arcs(ax, n, spacing):
+    """Draw arcs perfectly connecting to diamond corners, skipping corners."""
+    r = spacing/2.0  # Radius adjusted to touch diamond corners
+    offset = spacing/2.0
+
+    # Top border arcs
+    for i in range(1, n-2):
+        x = i*spacing + offset - spacing
+        y = (n-1)*spacing + 0.01
+        draw_arc(ax, x, y, r=r, start=0, end=180)
+
+    # Bottom border arcs
+    for i in range(1, n-2):
+        x = i*spacing + offset - spacing
+        y = -0.01
+        draw_arc(ax, x, y, r=r, start=180, end=360)
+
+    # Left border arcs
+    for j in range(1, n-2):
+        y = j*spacing + offset - spacing
+        x = -0.01
+        draw_arc(ax, x, y, r=r, start=270, end=450)
+
+    # Right border arcs
+    for j in range(1, n-2):
+        y = j*spacing + offset - spacing
+        x = (n-1)*spacing + 0.01
+        draw_arc(ax, x, y, r=r, start=90, end=270)
+
 def generate_kolam(n):
-    fig, ax = plt.subplots(figsize=(8,8))
+    fig, ax = plt.subplots(figsize=(8, 8))
     ax.set_facecolor(bg_color)
     ax.axis("off")
     spacing = 1
@@ -48,68 +77,33 @@ def generate_kolam(n):
             for j in range(n):
                 ax.plot(i*spacing, j*spacing, 'o', color=dot_color, markersize=5)
 
-    # === Straight Lines ===
     if kolam_type == "Straight Lines":
         draw_straight(ax, n, spacing)
 
-    # === Connected Diamonds ===
     elif kolam_type == "Connected Diamonds":
         for i in range(n-1):
             for j in range(n-1):
                 draw_diamond(ax, (i+0.5)*spacing, (j+0.5)*spacing, s=spacing)
 
-    # === Connected Diamonds with Arcs ===
-    elif kolam_type == "Connected Diamonds with Arcs":
-        # Diamonds
+    elif kolam_type == "Diamond with Arcs":
         for i in range(n-1):
             for j in range(n-1):
                 draw_diamond(ax, (i+0.5)*spacing, (j+0.5)*spacing, s=spacing)
-        # Border arcs: skip corners → total (n-2) arcs
-        r = spacing/2.3  # slightly smaller radius to avoid overlap
+        draw_border_arcs(ax, n, spacing)
 
-        # Bottom border
-        for i in range(1, n-2+1):
-            x = i*spacing
-            draw_arc(ax, x, -0.1, r=r, start=180, end=360)
-        # Top border
-        for i in range(1, n-2+1):
-            x = i*spacing
-            draw_arc(ax, x, (n-1)+0.6, r=r, start=0, end=180)
-
-        # Left border
-        for j in range(1, n-2+1):
-            y = j*spacing
-            draw_arc(ax, -0.1, y, r=r, start=90, end=270)
-        # Right border
-        for j in range(1, n-2+1):
-            y = j*spacing
-            draw_arc(ax, (n-1)+0.6, y, r=r, start=270, end=450)
-
-    # === Loops/Arcs ===
     elif kolam_type == "Loops/Arcs":
         for i in range(n):
             for j in range(n):
                 draw_loop(ax, i*spacing, j*spacing, r=spacing/2.2)
 
-    # === Mixed ===
     elif kolam_type == "Mixed":
         for i in range(n-1):
             for j in range(n-1):
-                x, y = (i+0.5)*spacing, (j+0.5)*spacing
                 if (i+j) % 2 == 0:
-                    draw_diamond(ax, x, y, s=spacing)
+                    draw_diamond(ax, (i+0.5)*spacing, (j+0.5)*spacing, s=spacing)
                 else:
-                    draw_loop(ax, x, y, r=spacing/2.2)
-        # Optional arcs for mixed borders
-        r = spacing/2.3
-        for i in range(1, n-2+1):
-            x = i*spacing
-            draw_arc(ax, x, -0.1, r=r, start=180, end=360)
-            draw_arc(ax, x, (n-1)+0.6, r=r, start=0, end=180)
-        for j in range(1, n-2+1):
-            y = j*spacing
-            draw_arc(ax, -0.1, y, r=r, start=90, end=270)
-            draw_arc(ax, (n-1)+0.6, y, r=r, start=270, end=450)
+                    draw_loop(ax, (i+0.5)*spacing, (j+0.5)*spacing, r=spacing/2.2)
+        draw_border_arcs(ax, n, spacing)
 
     ax.set_aspect("equal")
     st.pyplot(fig)
@@ -117,3 +111,4 @@ def generate_kolam(n):
 # === Button ===
 if st.button("🎨 Generate Kolam"):
     generate_kolam(size)
+
