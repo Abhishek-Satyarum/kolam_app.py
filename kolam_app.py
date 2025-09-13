@@ -92,6 +92,7 @@ if st.button("🎨 Generate Kolam"):
     generate_kolam(size, kolam_type)
 
 
+
 # ----------- Button -----------
 if st.button("Generate Kolam"):
     generate_kolam(kolam_type, size)
