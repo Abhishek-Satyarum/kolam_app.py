@@ -23,7 +23,7 @@ def draw_diamond(ax, x, y, s=1):
     xs, ys = zip(*pts)
     ax.plot(xs, ys, color=line_color, lw=line_width)
 
-def draw_arc(ax, x, y, r=0.5, start=0, end=180):
+def draw_arc(ax, x, y, r=0.6, start=0, end=180):
     theta = np.linspace(np.radians(start), np.radians(end), 100)
     ax.plot(x + r*np.cos(theta), y + r*np.sin(theta), color=line_color, lw=line_width)
 
@@ -41,8 +41,8 @@ def generate_kolam(n):
     ax.set_facecolor(bg_color)
     ax.axis("off")
     spacing = 1
-    r = 0.4     # Arc radius
-    offset = 0.05  # Slight inward offset
+    r = 0.5     # Arc radius
+    offset = 0.01  # Slight inward offset
 
     # Draw dots
     if show_dots:
