@@ -24,7 +24,7 @@ def draw_diamond(ax, x, y, s=1):
     ax.plot(xs, ys, color=line_color, lw=line_width)
 
 def draw_arc(ax, x, y, r=0.5, start=0, end=90):
-    theta = np.linspace(np.radians(start), np.radians(end), 100)
+    theta = np.linspace(np.radians(start), np.radians(end), 120)
     ax.plot(x + r*np.cos(theta), y + r*np.sin(theta), color=line_color, lw=line_width)
 
 def draw_loop(ax, x, y, r=0.5):
@@ -42,7 +42,7 @@ def generate_kolam(n):
     ax.axis("off")
     spacing = 1
 
-    # Dots
+    # Draw dots
     if show_dots:
         for i in range(n):
             for j in range(n):
@@ -64,15 +64,26 @@ def generate_kolam(n):
         for i in range(n-1):
             for j in range(n-1):
                 draw_diamond(ax, (i+0.5)*spacing, (j+0.5)*spacing, s=spacing)
-        # Border arcs rotated 180° (close loops)
-        for i in range(n-1):  # Bottom and Top
-            x = (i+0.5)*spacing
-            draw_arc(ax, x, -0.1, r=0.5, start=180, end=360)             # bottom flipped
-            draw_arc(ax, x, (n-1)+0.6, r=0.5, start=0, end=180)         # top flipped
-        for j in range(n-1):  # Left and Right
-            y = (j+0.5)*spacing
-            draw_arc(ax, -0.1, y, r=0.5, start=90, end=270)             # left flipped
-            draw_arc(ax, (n-1)+0.6, y, r=0.5, start=270, end=450)       # right flipped
+        # Border arcs: skip corners → total (n-2) arcs
+        r = spacing/2.3  # slightly smaller radius to avoid overlap
+
+        # Bottom border
+        for i in range(1, n-2+1):
+            x = i*spacing
+            draw_arc(ax, x, -0.1, r=r, start=180, end=360)
+        # Top border
+        for i in range(1, n-2+1):
+            x = i*spacing
+            draw_arc(ax, x, (n-1)+0.6, r=r, start=0, end=180)
+
+        # Left border
+        for j in range(1, n-2+1):
+            y = j*spacing
+            draw_arc(ax, -0.1, y, r=r, start=90, end=270)
+        # Right border
+        for j in range(1, n-2+1):
+            y = j*spacing
+            draw_arc(ax, (n-1)+0.6, y, r=r, start=270, end=450)
 
     # === Loops/Arcs ===
     elif kolam_type == "Loops/Arcs":
@@ -89,14 +100,16 @@ def generate_kolam(n):
                     draw_diamond(ax, x, y, s=spacing)
                 else:
                     draw_loop(ax, x, y, r=spacing/2.2)
-        for i in range(n-1):
-            x = (i+0.5)*spacing
-            draw_arc(ax, x, -0.1, r=0.5, start=180, end=360)
-            draw_arc(ax, x, (n-1)+0.6, r=0.5, start=0, end=180)
-        for j in range(n-1):
-            y = (j+0.5)*spacing
-            draw_arc(ax, -0.1, y, r=0.5, start=90, end=270)
-            draw_arc(ax, (n-1)+0.6, y, r=0.5, start=270, end=450)
+        # Optional arcs for mixed borders
+        r = spacing/2.3
+        for i in range(1, n-2+1):
+            x = i*spacing
+            draw_arc(ax, x, -0.1, r=r, start=180, end=360)
+            draw_arc(ax, x, (n-1)+0.6, r=r, start=0, end=180)
+        for j in range(1, n-2+1):
+            y = j*spacing
+            draw_arc(ax, -0.1, y, r=r, start=90, end=270)
+            draw_arc(ax, (n-1)+0.6, y, r=r, start=270, end=450)
 
     ax.set_aspect("equal")
     st.pyplot(fig)
