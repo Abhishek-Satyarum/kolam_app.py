@@ -66,19 +66,19 @@ def generate_kolam(n):
 
         # Top border arcs (face inward: curve downward)
         for i in range(1, n-1):
-            draw_arc(ax, (i-0.5)*spacing, (n-1)+offset, r=r, start=180, end=360)
+            draw_arc(ax, (i-0.5)*spacing, (n-1)+offset, r=r, start=0, end=180)
 
         # Bottom border arcs (face inward: curve upward)
         for i in range(1, n-1):
-            draw_arc(ax, (i-0.5)*spacing, -offset, r=r, start=0, end=180)
+            draw_arc(ax, (i-0.5)*spacing, -offset, r=r, start=180, end=360)
 
         # Left border arcs (face inward: curve right)
         for j in range(1, n-1):
-            draw_arc(ax, -offset, (j-0.5)*spacing, r=r, start=270, end=450)
+            draw_arc(ax, -offset, (j-0.5)*spacing, r=r, start=90, end=270)
 
         # Right border arcs (face inward: curve left)
         for j in range(1, n-1):
-            draw_arc(ax, (n-1)+offset, (j-0.5)*spacing, r=r, start=90, end=270)
+            draw_arc(ax, (n-1)+offset, (j-0.5)*spacing, r=r,  start=270, end=450)
 
     elif kolam_type == "Loops/Arcs":
         for i in range(n):
