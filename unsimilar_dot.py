@@ -1,47 +1,53 @@
 import streamlit as st
 import matplotlib.pyplot as plt
 
-st.set_page_config(page_title="Dot Pattern Kolam", layout="wide")
-st.title("✨ Dot Pattern Kolam Generator")
+st.set_page_config(page_title="Kolam Dot Pattern", layout="wide")
+st.title("✨ Kolam Dot Pattern Generator")
 
-# === User Inputs ===
-min_dots = st.number_input("Enter minimum dots:", min_value=1, value=1, step=1)
-max_dots = st.number_input("Enter maximum dots (odd number preferred):", min_value=3, value=5, step=1)
+# === User Controls ===
+max_dots = st.slider("Maximum Dots (mid rows):", 3, 15, 5)
+dot_color = st.color_picker("Dot Color:", "#FFFFFF")
+bg_color = st.color_picker("Background Color:", "#000000")
+spacing = st.slider("Dot Spacing:", 0.5, 2.0, 1.0)
 
-dot_color = st.color_picker("Dot Color:", "#000000")
-line_color = st.color_picker("Line Color:", "#B22222")  # Included for future extensions
-bg_color = st.color_picker("Background Color:", "#FFFFFF")
-dot_size = st.slider("Dot Size:", 20, 100, 50)
+# === Generate Pattern ===
+def generate_dots(max_dots):
+    rows = max_dots + 1  # Total rows
+    pattern = []
+    
+    # First half (increasing rows)
+    for i in range((rows // 2)):
+        if i == rows // 2 - 1:  # Mid-two rows
+            pattern.append(max_dots)
+            pattern.append(max_dots)
+        else:
+            dots = 1 + 2*i if 1 + 2*i < max_dots else max_dots
+            pattern.append(dots)
+    
+    # Bottom rows (mirror)
+    while len(pattern) < rows:
+        pattern.append(pattern[rows - len(pattern) - 1])
+    
+    return pattern
 
-# === Generate Button ===
-if st.button("🎨 Generate Kolam"):
-    # Ensure max_dots is odd for symmetry
-    if max_dots % 2 == 0:
-        max_dots += 1
-
-    # Collect coordinates for the pattern
-    points = []
-    # Top part (increasing dots)
-    for i in range(min_dots, max_dots + 1, 2):
-        x_start = -(i // 2)
-        for k in range(i):
-            points.append((x_start + k, (max_dots - i) // 2))
-
-    # Bottom part (decreasing dots)
-    for i in range(max_dots - 2, min_dots - 1, -2):
-        x_start = -(i // 2)
-        for k in range(i):
-            points.append((x_start + k, (max_dots - i) // 2 + (max_dots - i) + 2))
-
-    # === Plotting ===
-    fig, ax = plt.subplots(figsize=(6, 6))
+# === Plot Pattern ===
+def plot_pattern(max_dots, dot_color, bg_color, spacing):
+    pattern = generate_dots(max_dots)
+    fig, ax = plt.subplots(figsize=(6,6))
     ax.set_facecolor(bg_color)
-
-    # Scatter plot of dots
-    xs, ys = zip(*points)
-    ax.scatter(xs, ys, s=dot_size, c=dot_color)
-
-    # Formatting the plot
-    ax.set_aspect("equal")
     ax.axis("off")
+    
+    y = 0
+    for dots in pattern:
+        # Centering: compute starting x so pattern is symmetric
+        start_x = -(dots-1)/2 * spacing
+        for i in range(dots):
+            ax.plot(start_x + i*spacing, y, 'o', color=dot_color, markersize=10)
+        y -= spacing  # Move down to next row
+    
+    ax.set_aspect('equal')
     st.pyplot(fig)
+
+# === Button ===
+if st.button("🎨 Generate Kolam"):
+    plot_pattern(max_dots, dot_color, bg_color, spacing)
