@@ -1,77 +1,87 @@
 import streamlit as st
 import matplotlib.pyplot as plt
 
-# === Streamlit UI ===
-st.set_page_config(page_title="Kolam Diamonds Continuous Border", layout="wide")
-st.title("✨ Kolam Diamonds - Continuous Border")
+# --- UI Controls ---
+st.set_page_config(page_title="Kolam Diamond Generator", layout="wide")
+st.title("✨ Kolam Diamond Pattern Generator")
 
-# --- Controls ---
-max_dots = st.slider("Max Dots in Middle Rows", 3, 9, 5)
-dot_color = st.color_picker("Dot Color", "#FFFFFF")
-line_color = st.color_picker("Line Color", "#FFFFFF")
-bg_color = st.color_picker("Background Color", "#000000")
-line_width = st.slider("Line Width", 1.0, 5.0, 2.0)
-dot_size = st.slider("Dot Size", 30, 100, 50)
+max_dots = st.slider("Max dots in middle rows:", 3, 10, 5)
+dot_color = st.color_picker("Dot Color:", "#FFFFFF")
+line_color = st.color_picker("Line Color:", "#FFFFFF")
+bg_color = st.color_picker("Background Color:", "#000000")
+line_width = st.slider("Line Width:", 1.0, 5.0, 2.0)
 
-# === Button to generate ===
-if st.button("Generate Kolam"):
-    rows = max_dots + 1
-    pattern = []
+# --- Helper function to draw a diamond ---
+def draw_diamond(ax, x, y, s):
+    # Draw small diamond centered at (x,y)
+    ax.plot([x, x+s/2], [y, y+s/2], color=line_color, lw=line_width)
+    ax.plot([x, x-s/2], [y, y+s/2], color=line_color, lw=line_width)
+    ax.plot([x, x+s/2], [y, y-s/2], color=line_color, lw=line_width)
+    ax.plot([x, x-s/2], [y, y-s/2], color=line_color, lw=line_width)
 
-    # Build pattern counts for rows
-    for i in range(rows):
-        if i < rows//2:
-            count = 1 + 2*i
-        else:
-            count = 1 + 2*(rows - i - 1)
-        pattern.append(count)
-
-    fig, ax = plt.subplots(figsize=(6, 6))
+# --- Pattern generation ---
+def generate_pattern(n):
+    rows = n + 1  # total rows of dots
+    spacing = 1.0
+    fig, ax = plt.subplots(figsize=(8,8))
     ax.set_facecolor(bg_color)
-    ax.axis('off')
+    ax.axis("off")
 
-    spacing = 1.2
-    y = 0
-    dot_positions = []
+    # Build the pattern of dots
+    dots = []
+    half = rows // 2
+    for i in range(rows):
+        # dots in current row (symmetrical like diamond)
+        if i <= half:
+            dots_in_row = 1 + 2*i
+        else:
+            dots_in_row = 1 + 2*(rows-i-1)
+        offset = (2*n-1 - dots_in_row) / 2
+        for j in range(dots_in_row):
+            x = (j + offset) * spacing
+            y = -i * spacing
+            dots.append((x, y))
+            ax.plot(x, y, 'o', color=dot_color)
 
-    # Place dots
-    for count in pattern:
-        x_offset = -(count-1)/2 * spacing
-        for j in range(count):
-            dot_positions.append((x_offset + j*spacing, -y))
-            ax.scatter(x_offset + j*spacing, -y, s=dot_size, color=dot_color)
-        y += spacing
+    # Draw diamonds for inner dots (exclude border dots)
+    for x, y in dots:
+        # Skip border dots: border dots are those having <4 diagonal neighbors
+        neighbors = [
+            (x+spacing, y+spacing),
+            (x-spacing, y+spacing),
+            (x+spacing, y-spacing),
+            (x-spacing, y-spacing)
+        ]
+        neighbor_count = sum(1 for nb in neighbors if nb in dots)
+        if neighbor_count == 4:
+            draw_diamond(ax, x, y, spacing)
 
-    # Draw diamonds
-    def draw_diamond(x, y, s):
-        pts = [(x, y+s/2), (x+s/2, y), (x, y-s/2), (x-s/2, y), (x, y+s/2)]
-        xs, ys = zip(*pts)
-        ax.plot(xs, ys, color=line_color, lw=line_width)
-
-    border_dots = []
-    for x, y in dot_positions:
-        row_idx = int(abs(y)//spacing)
-        xs_at_row = [px for px,py in dot_positions if py==y]
-        if (row_idx == 0 or row_idx == len(pattern)-1 or
-            x == min(xs_at_row) or x == max(xs_at_row)):
-            border_dots.append((x, y))
-
-    # Draw diamonds for non-border dots
-    for x, y in dot_positions:
-        if (x, y) not in border_dots:
-            draw_diamond(x, y, s=spacing)
-
-    # Connect border dots to form continuous border
-    for x, y in border_dots:
-        # Horizontal connections
-        for x2, y2 in border_dots:
-            if abs(y - y2) < 1e-6 and abs(x - x2 - spacing) < 1e-6:
-                ax.plot([x, x2], [y, y2], color=line_color, lw=line_width)
-        # Diagonal connections
-        for x2, y2 in border_dots:
-            if abs(abs(x - x2) - spacing) < 1e-6 and abs(abs(y - y2) - spacing) < 1e-6:
-                ax.plot([x, x2], [y, y2], color=line_color, lw=line_width)
+    # Connect inner dots diagonally for continuity
+    for x, y in dots:
+        neighbors = [
+            (x+spacing, y+spacing),
+            (x-spacing, y+spacing),
+            (x+spacing, y-spacing),
+            (x-spacing, y-spacing)
+        ]
+        for nx, ny in neighbors:
+            if (x,y) in dots and (nx,ny) in dots:
+                # Only draw if both are non-border (>=3 neighbors)
+                nb1 = sum(1 for nb in [
+                    (x+spacing, y+spacing), (x-spacing, y+spacing),
+                    (x+spacing, y-spacing), (x-spacing, y-spacing)
+                ] if nb in dots)
+                nb2 = sum(1 for nb in [
+                    (nx+spacing, ny+spacing), (nx-spacing, ny+spacing),
+                    (nx+spacing, ny-spacing), (nx-spacing, ny-spacing)
+                ] if nb in dots)
+                if nb1 >= 3 and nb2 >= 3:
+                    ax.plot([x,nx], [y,ny], color=line_color, lw=line_width)
 
     ax.set_aspect('equal')
-    st.pyplot(fig)
+    return fig
 
+# --- Generate button ---
+if st.button("🎨 Generate Kolam"):
+    fig = generate_pattern(max_dots)
+    st.pyplot(fig)
