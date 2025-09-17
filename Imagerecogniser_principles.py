@@ -1,100 +1,94 @@
 import streamlit as st
-import cv2
 import numpy as np
+import cv2
+from io import BytesIO
 from PIL import Image
-import io
 
-st.set_page_config(page_title="Kolam Principles Analyzer", layout="wide")
-st.title("🎨 Kolam Principles Analyzer (Image-Based)")
+st.set_page_config(page_title="Kolam Design Analyzer", layout="centered")
+st.title("🎨 Kolam Design Principles Analyzer")
 
-uploaded_file = st.file_uploader("Upload a Kolam image (PNG/JPG):", type=["png", "jpg", "jpeg"])
+def analyze_kolam(image):
+    # Convert image to grayscale for consistent comparison
+    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
-def analyze_kolam(img_array):
-    gray = cv2.cvtColor(img_array, cv2.COLOR_RGB2GRAY)
-    edges = cv2.Canny(gray, 100, 200)
+    # === Symmetry Analysis ===
+    h, w = gray.shape
+    mid = w // 2
+    left = gray[:, :mid]
+    right = cv2.flip(gray[:, mid:], 1)
 
-    # Estimate symmetry (compare left/right halves)
-    h, w = edges.shape
-    left = edges[:, :w//2]
-    right = np.fliplr(edges[:, w//2:])
+    # Ensure left and right halves are the same width
+    min_width = min(left.shape[1], right.shape[1])
+    left = left[:, :min_width]
+    right = right[:, :min_width]
+
     symmetry_score = np.sum(left == right) / left.size
 
-    # Estimate line density (ratio of edge pixels)
+    # === Edge Detection ===
+    edges = cv2.Canny(gray, 50, 150)
+
+    # === Line Density ===
     line_density = np.sum(edges > 0) / edges.size
 
-    # Detect number of contours (complexity)
+    # === Complexity === (based on contour count)
     contours, _ = cv2.findContours(edges, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     complexity = len(contours)
 
     return symmetry_score, line_density, complexity, edges
 
-if uploaded_file:
-    image = Image.open(uploaded_file).convert("RGB")
-    img_array = np.array(image)
-    st.image(image, caption="Uploaded Kolam Image", use_column_width=True)
+def generate_principles(symmetry_score, line_density, complexity):
+    principles = []
+    if symmetry_score > 0.8:
+        principles.append("The Kolam shows **high bilateral symmetry**, a hallmark of traditional designs symbolizing balance and harmony.")
+    else:
+        principles.append("The Kolam displays **asymmetrical or free-form symmetry**, suggesting a creative or modern interpretation.")
 
-    # Download option
-    buf = io.BytesIO()
-    image.save(buf, format="PNG")
-    st.download_button("📥 Download Image", data=buf.getvalue(), file_name="kolam_uploaded.png")
+    if line_density > 0.15:
+        principles.append("It features **dense linework**, indicating intricate craftsmanship and possibly representing complexity or abundance.")
+    else:
+        principles.append("The design has **light linework**, reflecting minimalism and simplicity.")
+
+    if complexity > 20:
+        principles.append("The pattern is **highly complex**, with multiple interlacing curves and advanced structural planning.")
+    elif complexity > 10:
+        principles.append("The Kolam shows **moderate complexity**, balancing detail with clarity.")
+    else:
+        principles.append("The Kolam is **simple and elegant**, focusing on fundamental geometric forms.")
+
+    principles.append("The use of dots and connecting lines reflects **continuity and unity**, common in Kolam traditions.")
+    principles.append("The structure indicates **repetition and rhythm**, symbolizing infinite cycles in nature.")
+    return "\n\n".join(principles)
+
+# === File Upload ===
+uploaded_file = st.file_uploader("Upload a Kolam image", type=["jpg", "jpeg", "png"])
+
+if uploaded_file is not None:
+    # Read and display uploaded image
+    img = Image.open(uploaded_file)
+    st.image(img, caption="Uploaded Kolam", use_column_width=True)
+
+    # Convert to OpenCV format
+    img_array = np.array(img.convert("RGB"))
+    img_array = cv2.cvtColor(img_array, cv2.COLOR_RGB2BGR)
 
     # Analyze
     symmetry_score, line_density, complexity, edges = analyze_kolam(img_array)
-    st.subheader("Edge Detection Preview")
-    st.image(edges, use_column_width=True)
+    principles = generate_principles(symmetry_score, line_density, complexity)
 
-    # Generate tailored principles
-    st.subheader("🌟 Kolam Design Principles for Your Image:")
-    principles = []
+    st.subheader("📊 Kolam Design Principles")
+    st.write(principles)
 
-    # Symmetry principle
-    if symmetry_score > 0.85:
-        principles.append(
-            f"1. **High Symmetry** – Your Kolam exhibits near-perfect mirror symmetry "
-            f"({symmetry_score:.2f}), a hallmark of traditional patterns symbolizing balance and harmony."
-        )
-    else:
-        principles.append(
-            f"1. **Moderate Symmetry** – The symmetry score is {symmetry_score:.2f}, suggesting a creative, "
-            f"slightly asymmetric layout that breaks from tradition while remaining aesthetically appealing."
-        )
+    # Display detected edges
+    st.subheader("Detected Edges")
+    st.image(edges, caption="Edge Detection Output", use_column_width=True)
 
-    # Line density principle
-    if line_density > 0.08:
-        principles.append(
-            f"2. **Dense Linework** – A higher line density ({line_density:.2f}) indicates rich decorative detail "
-            f"and intricate weaving around the dots."
-        )
-    else:
-        principles.append(
-            f"2. **Minimal Linework** – With a lower line density ({line_density:.2f}), the design emphasizes "
-            f"simplicity and open space, typical of minimalist Kolam styles."
-        )
-
-    # Complexity principle
-    if complexity > 50:
-        principles.append(
-            f"3. **Complex Motifs** – The design contains {complexity} unique contours, showing fractal-like repetition "
-            f"and advanced geometric composition."
-        )
-    else:
-        principles.append(
-            f"3. **Moderate Complexity** – With {complexity} contours, this Kolam balances simplicity with ornamental elements."
-        )
-
-    # Continuity principle
-    principles.append(
-        "4. **Continuity of Curves** – The edges show smooth, continuous curves typical of Kolams, symbolizing the unbroken flow of life."
+    # Prepare a downloadable text file
+    output = BytesIO()
+    output.write(principles.encode('utf-8'))
+    output.seek(0)
+    st.download_button(
+        label="📥 Download Principles as Text",
+        data=output,
+        file_name="kolam_principles.txt",
+        mime="text/plain"
     )
-
-    # Cultural context
-    principles.append(
-        "5. **Cultural Symbolism** – Such patterns traditionally represent prosperity, welcoming energy, "
-        "and respect for natural order, reinforcing harmony between art and environment."
-    )
-
-    for p in principles:
-        st.markdown(p)
-
-else:
-    st.info("⬆️ Please upload a Kolam image to analyze its unique design principles.")
