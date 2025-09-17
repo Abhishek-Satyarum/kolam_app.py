@@ -30,14 +30,14 @@ st.markdown(
     /* Style buttons */
     div.stButton > button {
         background: linear-gradient(90deg, #A29BFE, #81ECEC);
-        color: #ffffff;
+        color: #5A3E85;
         font-weight: bold;
         border-radius: 8px;
         padding: 0.5em 1em;
     }
     div.stButton > button:hover {
         background: linear-gradient(90deg, #81ECEC, #74B9FF);
-        color: #000;
+        color: #5A3E85;
     }
     /* Tabs background and active style */
     div[data-baseweb="tab-list"] {
