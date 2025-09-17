@@ -25,7 +25,7 @@ st.markdown(
         --title: #6b2b4a;
       }
       body {
-        background: linear-gradient(180deg, #fff2ec 70%, #fffaf6 100%);
+        background: linear-gradient(180deg, #FFD580 70%, #fffaf6 100%);
       }
       .app-header {
         display:flex;
@@ -92,7 +92,7 @@ with tab_basic:
     size = st.slider("Grid Size (dots per side):", 4, 10, 6, key="basic_size")
     line_color = st.color_picker("Kolam Line Color:", "#B22222", key="basic_line_color")
     dot_color = st.color_picker("Dot Color:", "#000000", key="basic_dot_color")
-    bg_color = st.color_picker("Background Color:", "#FFFFFF", key="basic_bg_color")
+    bg_color = st.color_picker("Background Color:", "#FFD580", key="basic_bg_color")
     line_width = st.slider("Line Width:", 1.0, 5.0, 2.0, key="basic_line_width")
     show_dots = st.checkbox("Show Dots", value=True, key="basic_show_dots")
 
