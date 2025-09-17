@@ -25,7 +25,7 @@ st.markdown(
         --title: #6b2b4a;
       }
       body {
-        background: linear-gradient(180deg, #fff2ec 0%, #fffaf6 100%);
+        background: linear-gradient(180deg, #fff2ec 70%, #fffaf6 100%);
       }
       .app-header {
         display:flex;
@@ -66,7 +66,7 @@ with cols[0]:
     else:
         st.markdown("<div style='width:120px;height:120px;background:#eee;border-radius:12px;'></div>", unsafe_allow_html=True)
 with cols[1]:
-    st.markdown('<div class="app-header"><h1 class="app-title">🌸 Kolam Konnect</h1></div>', unsafe_allow_html=True)
+    st.markdown('<div class="app-header"><h1 class="app-title">Kolam Konnect</h1></div>', unsafe_allow_html=True)
 
 # ===== Tabs =====
 tab_basic, tab_complex, tab_analyze, tab_community = st.tabs(
