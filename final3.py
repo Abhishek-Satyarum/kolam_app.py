@@ -97,7 +97,7 @@ st.markdown(
       }
       .stButton>button {
         background: linear-gradient(90deg,var(--accent1),var(--accent2)) !important;
-        color: white;
+        color: #5A3E85;
         border: none;
       }
     </style>
