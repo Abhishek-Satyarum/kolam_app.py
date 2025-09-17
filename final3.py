@@ -41,12 +41,12 @@ st.markdown(
     }
     /* Tabs background and active style */
     div[data-baseweb="tab-list"] {
-        background-color: #F0F4F8;
+        background-color: #333333;
         border-radius: 10px;
         padding: 0.3em;
     }
     div[role="tab"][aria-selected="true"] {
-        background-color: #DDEEFF;
+        background-color: #333333;
         color: #5A3E85;
         font-weight: bold;
         border-radius: 8px;
