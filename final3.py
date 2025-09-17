@@ -7,72 +7,83 @@ import cv2
 from io import BytesIO
 from PIL import Image
 
-# ====== Page config ======
+# ===== Page config =====
 st.set_page_config(page_title="Kolam Konnect", layout="wide")
 
-# ====== Safe logo load (avoid crash if missing) ======
-LOGO_PATH = os.path.join(os.path.dirname(__file__), "logo.jpg")
+# ===== Paths / logo =====
+HERE = os.path.dirname(__file__)
+LOGO_PATH = os.path.join(HERE, "logo.jpg")
 logo_exists = os.path.exists(LOGO_PATH)
 
-# ====== Simple CSS to match screenshot-like feel (not global gradient) ======
+# ===== Styling (vibrant background like your screenshot, header tweaks) =====
 st.markdown(
     """
     <style>
-      .header {
+      :root{
+        --accent1: #FF6A3D;  /* orange */
+        --accent2: #FFB26B;  /* light orange */
+        --title: #6b2b4a;
+      }
+      body {
+        background: linear-gradient(180deg, #fff2ec 0%, #fffaf6 100%);
+      }
+      .app-header {
         display:flex;
         align-items:center;
-        gap:12px;
-        padding:10px 6px;
+        gap:16px;
+        padding:14px 8px;
+        margin-bottom:10px;
       }
       .app-title {
-        font-size:22px;
-        font-weight:700;
-        background: linear-gradient(90deg,#FF512F,#F09819);
+        font-size:28px;
+        font-weight:800;
+        background: linear-gradient(90deg,var(--accent1),var(--accent2));
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
-      }
-      .hero {
-        background: linear-gradient(180deg, #fff7f3 0%, #fffaf8 100%);
-        padding:32px;
-        border-radius:8px;
-        margin-bottom:12px;
+        margin:0;
       }
       .section-card {
         background: white;
-        border-radius:10px;
-        padding:16px;
+        border-radius:12px;
+        padding:14px;
         box-shadow: 0 6px 18px rgba(0,0,0,0.04);
+      }
+      .stButton>button {
+        background: linear-gradient(90deg,var(--accent1),var(--accent2)) !important;
+        color: white;
+        border: none;
       }
     </style>
     """,
     unsafe_allow_html=True,
 )
 
-# ====== Header ======
-header_cols = st.columns([0.12, 0.88])
-with header_cols[0]:
+# ===== Header with larger logo =====
+cols = st.columns([0.12, 0.88])
+with cols[0]:
     if logo_exists:
-        st.image(LOGO_PATH, width=60)
+        st.image(LOGO_PATH, width=120)
     else:
-        st.markdown("<div style='width:60px;height:60px;background:#eee;border-radius:8px;'></div>", unsafe_allow_html=True)
-with header_cols[1]:
-    st.markdown('<div class="header"><div class="app-title">🌸 Kolam Konnect</div></div>', unsafe_allow_html=True)
+        st.markdown("<div style='width:120px;height:120px;background:#eee;border-radius:12px;'></div>", unsafe_allow_html=True)
+with cols[1]:
+    st.markdown('<div class="app-header"><h1 class="app-title">🌸 Kolam Konnect</h1></div>', unsafe_allow_html=True)
 
-# ====== Tabs ======
+# ===== Tabs =====
 tab_basic, tab_complex, tab_analyze, tab_community = st.tabs(
     ["🎨 Basic Level Kolam Generator", "🔷 Complex Kolam Generator", "📊 Kolam Analyzer", "👥 Community"]
 )
 
 # ------------------------------
 # TAB 1: Basic Level Kolam Generator
+# (All options except "Diamond with Arcs")
 # ------------------------------
 with tab_basic:
-    st.markdown('<div class="hero">', unsafe_allow_html=True)
-    st.markdown("<h2 style='margin:0'>Basic Level Kolam Generator</h2>", unsafe_allow_html=True)
-    st.markdown("<p style='margin-top:6px;color:#5b5b5b'>Choose a simple pattern and generate Kolam.</p>", unsafe_allow_html=True)
+    st.markdown('<div class="section-card">', unsafe_allow_html=True)
+    st.subheader("Basic Level Kolam Generator")
+    st.write("Generate simple kolam patterns (Straight Lines, Connected Diamonds, Loops/Arcs, Mixed).")
     st.markdown("</div>", unsafe_allow_html=True)
 
-    # --- widgets (unique keys) ---
+    # widgets with unique keys
     kolam_type = st.selectbox(
         "Choose Kolam Type:",
         ["Straight Lines", "Connected Diamonds", "Loops/Arcs", "Mixed"],
@@ -85,9 +96,9 @@ with tab_basic:
     line_width = st.slider("Line Width:", 1.0, 5.0, 2.0, key="basic_line_width")
     show_dots = st.checkbox("Show Dots", value=True, key="basic_show_dots")
 
-    # --- drawing helpers (kept close to your original code) ---
+    # drawing helpers (kept as your original logic)
     def draw_diamond_basic(ax, x, y, s=1):
-        pts = [(x, y + s/2), (x + s/2, y), (x, y - s/2), (x - s/2, y), (x, y + s/2)]
+        pts = [(x, y + s / 2), (x + s / 2, y), (x, y - s / 2), (x - s / 2, y), (x, y + s / 2)]
         xs, ys = zip(*pts)
         ax.plot(xs, ys, color=line_color, lw=line_width)
 
@@ -101,7 +112,7 @@ with tab_basic:
             ax.plot([i * spacing, i * spacing], [0, (n - 1) * spacing], color=line_color, lw=line_width)
 
     def generate_basic_kolam(n):
-        fig, ax = plt.subplots(figsize=(7, 7))
+        fig, ax = plt.subplots(figsize=(8, 8))
         ax.set_facecolor(bg_color)
         ax.axis("off")
         spacing = 1
@@ -138,21 +149,21 @@ with tab_basic:
 # ------------------------------
 with tab_complex:
     st.markdown('<div class="section-card">', unsafe_allow_html=True)
-    st.header("Complex Kolam Generator")
-    st.markdown("Choose between Unsymmetrical Dots Kolam and Diamond-with-Arcs Kolam.", unsafe_allow_html=True)
+    st.subheader("Complex Kolam Generator")
+    st.write("Select Unsymmetrical Dots Kolam or Diamond-with-Arcs Kolam (exact code from your working snippet).")
     st.markdown("</div>", unsafe_allow_html=True)
 
     choice = st.selectbox("Select Type", ["Unsymmetrical Dots Kolam", "Diamond with Arcs Kolam"], key="complex_choice")
 
-    # ---------- Unsymmetrical Dots ----------
+    # ------------------ Unsymmetrical Dots ------------------
     if choice == "Unsymmetrical Dots Kolam":
-        max_dots = st.slider("Max Dots in Middle Rows:", 3, 9, 5, key="complex_unsym_max_dots")
-        line_color2 = st.color_picker("Line Color:", "#FFFFFF", key="complex_unsym_line_color")
-        dot_color2 = st.color_picker("Dot Color:", "#FFFFFF", key="complex_unsym_dot_color")
-        bg_color2 = st.color_picker("Background Color:", "#000000", key="complex_unsym_bg_color")
-        line_width2 = st.slider("Line Width:", 1.0, 5.0, 2.5, key="complex_unsym_line_width")
-        spacing2 = st.slider("Dot Spacing:", 0.5, 2.0, 1.0, key="complex_unsym_spacing")
-        show_dots2 = st.checkbox("Show Dots", value=True, key="complex_unsym_show_dots")
+        max_dots = st.slider("Max Dots in Middle Rows:", 3, 9, 5, key="unsym_maxdots")
+        line_color2 = st.color_picker("Line Color:", "#FFFFFF", key="unsym_line_color")
+        dot_color2 = st.color_picker("Dot Color:", "#FFFFFF", key="unsym_dot_color")
+        bg_color2 = st.color_picker("Background Color:", "#000000", key="unsym_bg_color")
+        line_width2 = st.slider("Line Width:", 1.0, 5.0, 2.5, key="unsym_line_width")
+        spacing2 = st.slider("Dot Spacing:", 0.5, 2.0, 1.0, key="unsym_spacing")
+        show_dots2 = st.checkbox("Show Dots", value=True, key="unsym_show_dots")
 
         def generate_dot_positions_unsym(max_dots, spacing):
             rows = max_dots + 1
@@ -168,9 +179,9 @@ with tab_complex:
                     dot_positions.append((offset + j * spacing, -i * spacing))
             return dot_positions, rows
 
-        def draw_diamond_unsym(ax, x, y, s=1):
-            pts = [(x, y + s / 2), (x + s / 2, y), (x, y - s / 2), (x - s / 2, y), (x, y + s / 2)]
-            xs, ys = zip(*pts)
+        def draw_diamond2(ax, x, y, s=1):
+            points = [(x, y + s / 2), (x + s / 2, y), (x, y - s / 2), (x - s / 2, y), (x, y + s / 2)]
+            xs, ys = zip(*points)
             ax.plot(xs, ys, color=line_color2, lw=line_width2)
 
         def find_border_indices(dot_positions, rows):
@@ -189,8 +200,7 @@ with tab_complex:
         def generate_unsymmetrical_kolam():
             dot_positions, rows = generate_dot_positions_unsym(max_dots, spacing2)
             borders = find_border_indices(dot_positions, rows)
-
-            fig, ax = plt.subplots(figsize=(7, 7))
+            fig, ax = plt.subplots(figsize=(8, 8))
             ax.set_facecolor(bg_color2)
             ax.axis("off")
 
@@ -198,12 +208,11 @@ with tab_complex:
                 xs, ys = zip(*dot_positions)
                 ax.scatter(xs, ys, color=dot_color2, s=40)
 
-            # Draw diamonds for non-border dots
             for idx, (x, y) in enumerate(dot_positions):
                 if idx not in borders:
-                    draw_diamond_unsym(ax, x, y, s=spacing2)
+                    draw_diamond2(ax, x, y, s=spacing2)
 
-            # Connect diagonal neighbours (use tolerance for float comparison)
+            # Connect diagonal neighbours (tolerance for floats)
             for idx1, (x1, y1) in enumerate(dot_positions):
                 for idx2, (x2, y2) in enumerate(dot_positions):
                     if idx1 < idx2 and np.isclose(abs(x1 - x2), spacing2) and np.isclose(abs(y1 - y2), spacing2):
@@ -212,18 +221,20 @@ with tab_complex:
             ax.set_aspect("equal")
             st.pyplot(fig)
 
-        if st.button("🎨 Generate Complex Kolam (Unsymmetrical)", key="complex_unsym_generate"):
+        if st.button("🎨 Generate Complex Kolam (Unsymmetrical)", key="unsym_generate"):
             generate_unsymmetrical_kolam()
 
-    # ---------- Diamond with Arcs Kolam ----------
+    # ------------------ Diamond with Arcs (exact snippet-based implementation) ------------------
     else:
-        size = st.slider("Grid Size (dots per side):", 4, 10, 6, key="complex_diamond_size")
-        line_color_d = st.color_picker("Line Color:", "#B22222", key="complex_diamond_line_color")
-        dot_color_d = st.color_picker("Dot Color:", "#000000", key="complex_diamond_dot_color")
-        bg_color_d = st.color_picker("Background:", "#FFFFFF", key="complex_diamond_bg_color")
-        line_width_d = st.slider("Line Width:", 1.0, 5.0, 2.0, key="complex_diamond_line_width")
-        show_dots_d = st.checkbox("Show Dots", value=True, key="complex_diamond_show_dots")
+        # Widget keys unique
+        size_d = st.slider("Grid Size (dots per side):", 4, 10, 6, key="diamond_size")
+        line_color_d = st.color_picker("Kolam Line Color:", "#B22222", key="diamond_line_color")
+        dot_color_d = st.color_picker("Dot Color:", "#000000", key="diamond_dot_color")
+        bg_color_d = st.color_picker("Background Color:", "#FFFFFF", key="diamond_bg_color")
+        line_width_d = st.slider("Line Width:", 1.0, 5.0, 2.0, key="diamond_line_width")
+        show_dots_d = st.checkbox("Show Dots", value=True, key="diamond_show_dots")
 
+        # Using the same logic/structure as your provided working snippet (kept intact)
         def draw_diamond_arc(ax, x, y, s=1):
             pts = [(x, y + s / 2), (x + s / 2, y), (x, y - s / 2), (x - s / 2, y), (x, y + s / 2)]
             xs, ys = zip(*pts)
@@ -233,12 +244,13 @@ with tab_complex:
             theta = np.linspace(np.radians(start), np.radians(end), 200)
             ax.plot(x + r * np.cos(theta), y + r * np.sin(theta), color=line_color_d, lw=line_width_d)
 
-        def generate_diamond_with_arcs(n):
-            fig, ax = plt.subplots(figsize=(7, 7))
+        def generate_kolam_diamond_arcs(n):
+            # This function matches the exact structure/logic from the snippet you provided
+            fig, ax = plt.subplots(figsize=(8, 8))
             ax.set_facecolor(bg_color_d)
             ax.axis("off")
             spacing = 1
-            r = spacing / 2.0  # choose radius relative to spacing
+            r = 0.5
             offset = 0.01
 
             if show_dots_d:
@@ -246,36 +258,32 @@ with tab_complex:
                     for j in range(n):
                         ax.plot(i * spacing, j * spacing, "o", color=dot_color_d, markersize=5)
 
-            # draw diamonds centered between dots
+            # draw diamonds
             for i in range(n - 1):
                 for j in range(n - 1):
                     draw_diamond_arc(ax, (i + 0.5) * spacing, (j + 0.5) * spacing, s=spacing)
 
-            # top & bottom arcs (facing inward)
+            # top & bottom arcs
             for i in range(1, n - 1):
-                # shift arcs horizontally so arc center surrounds exactly one border dot
-                cx = (i - 0.5) * spacing + 0.0  # slight shift possible if needed
-                draw_arc_arc(ax, cx, (n - 1) + offset, r=r, start=0, end=180)  # top arcs (curve downward)
-                draw_arc_arc(ax, cx, -offset, r=r, start=180, end=360)  # bottom arcs (curve upward)
+                draw_arc_arc(ax, (i - 0.5) * spacing + r, (n - 1) + offset, r=r, start=0, end=180)
+                draw_arc_arc(ax, (i - 0.5) * spacing + r, -offset, r=r, start=180, end=360)
 
-            # left & right arcs (facing inward)
+            # left & right arcs
             for j in range(1, n - 1):
-                cy = (j - 0.5) * spacing + 0.0
-                draw_arc_arc(ax, -offset, cy, r=r, start=90, end=270)  # left arcs (curve right)
-                draw_arc_arc(ax, (n - 1) + offset, cy, r=r, start=270, end=450)  # right arcs (curve left)
+                draw_arc_arc(ax, -offset, (j - 0.5) * spacing + r, r=r, start=90, end=270)
+                draw_arc_arc(ax, (n - 1) + offset, (j - 0.5) * spacing + r, r=r, start=270, end=450)
 
             ax.set_aspect("equal")
             st.pyplot(fig)
 
-        if st.button("🎨 Generate Complex Kolam (Diamond+Arcs)", key="complex_diamond_generate"):
-            generate_diamond_with_arcs(size)
+        if st.button("🎨 Generate Complex Kolam (Diamond+Arcs)", key="diamond_generate"):
+            generate_kolam_diamond_arcs(size_d)
 
 # ------------------------------
-# TAB 3: Kolam Analyzer
+# TAB 3: Kolam Analyzer (UNCHANGED)
 # ------------------------------
 with tab_analyze:
     st.header("Kolam Design Principles Analyzer")
-
     uploaded_file = st.file_uploader("Upload a Kolam image", type=["jpg", "jpeg", "png"], key="analyzer_upload")
 
     def analyze_kolam(image):
@@ -284,11 +292,9 @@ with tab_analyze:
         mid = w // 2
         left = gray[:, :mid]
         right = cv2.flip(gray[:, mid:], 1)
-
         min_width = min(left.shape[1], right.shape[1])
         left = left[:, :min_width]
         right = right[:, :min_width]
-
         symmetry_score = np.sum(left == right) / left.size
         edges = cv2.Canny(gray, 50, 150)
         line_density = np.sum(edges > 0) / edges.size
@@ -331,7 +337,6 @@ with tab_analyze:
             st.subheader("Detected Edges")
             st.image(edges, caption="Edge Detection Output", use_column_width=True)
 
-            # download button
             output = BytesIO()
             output.write(principles.encode("utf-8"))
             output.seek(0)
@@ -344,30 +349,18 @@ with tab_analyze:
 # ------------------------------
 with tab_community:
     st.header("Kolam Community Showcase")
-    st.write("Community-sourced Kolam examples (public images).")
-    cols = st.columns(3)
-    # A small curated list of public kolam images; if any fail to load they will be skipped
+    st.write("Curated public Kolam images. (If any image fails to load, it will be skipped.)")
     community_urls = [
         "https://upload.wikimedia.org/wikipedia/commons/9/9d/Kolam_1.jpg",
-        "https://upload.wikimedia.org/wikipedia/commons/7/7a/Rangoli_design.jpg",
+        "https://upload.wikimedia.org/wikipedia/commons/6/67/Kolam_design.jpg",
         "https://upload.wikimedia.org/wikipedia/commons/e/eb/Kolam_Rangoli.jpg",
-        # fallback placeholders (picsum) in case the above are inaccessible
-        "https://picsum.photos/seed/kolam1/800/600",
-        "https://picsum.photos/seed/kolam2/800/600",
     ]
-    # Display up to 6 images in a responsive grid
-    idx = 0
-    for url in community_urls:
+
+    cols = st.columns(3)
+    for i, url in enumerate(community_urls):
         try:
-            col = cols[idx % 3]
-            col.image(url, use_column_width=True)
-            idx += 1
+            cols[i].image(url, use_column_width=True)
         except Exception:
-            # skip failed image
-            idx += 1
-            continue
+            cols[i].write("Image not available")
 
-    st.markdown("---")
-    st.write("Want to contribute? Add your Kolam images to the community repository and they will show up here.")
-
-# ===== End of file =====
+# ===== End =====
