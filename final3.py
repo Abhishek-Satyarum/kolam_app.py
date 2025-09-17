@@ -9,6 +9,53 @@ from PIL import Image
 
 # ===== Page config =====
 st.set_page_config(page_title="Kolam Konnect", layout="wide")
+# === THEME SETTINGS ===
+# Use a soft gradient-like style with light shades
+st.markdown(
+    """
+    <style>
+    /* Set the full app background */
+    .stApp {
+        background-color: #F8F9FA; /* Soft gray for main background */
+        color: #333333;           /* Dark gray for text for good contrast */
+    }
+    /* Style for headers */
+    h1, h2, h3 {
+        color: #5A3E85; /* Soft violet accent for headers */
+    }
+    /* Style for sidebar */
+    section[data-testid="stSidebar"] {
+        background-color: #E9F5FF; /* Light blue for sidebar */
+    }
+    /* Style buttons */
+    div.stButton > button {
+        background: linear-gradient(90deg, #A29BFE, #81ECEC);
+        color: #ffffff;
+        font-weight: bold;
+        border-radius: 8px;
+        padding: 0.5em 1em;
+    }
+    div.stButton > button:hover {
+        background: linear-gradient(90deg, #81ECEC, #74B9FF);
+        color: #000;
+    }
+    /* Tabs background and active style */
+    div[data-baseweb="tab-list"] {
+        background-color: #F0F4F8;
+        border-radius: 10px;
+        padding: 0.3em;
+    }
+    div[role="tab"][aria-selected="true"] {
+        background-color: #DDEEFF;
+        color: #5A3E85;
+        font-weight: bold;
+        border-radius: 8px;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
+
 
 # ===== Paths / logo =====
 HERE = os.path.dirname(__file__)
