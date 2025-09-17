@@ -16,7 +16,7 @@ st.markdown(
     <style>
     /* Set the full app background */
     .stApp {
-        background-color: #F8F9FA; /* Soft gray for main background */
+        background-color: #DDEEFF; /* Soft gray for main background */
         color: #333333;           /* Dark gray for text for good contrast */
     }
     /* Style for headers */
@@ -90,7 +90,7 @@ st.markdown(
         margin:0;
       }
       .section-card {
-        background: white;
+        background: #333333;
         border-radius:12px;
         padding:14px;
         box-shadow: 0 6px 18px rgba(0,0,0,0.04);
