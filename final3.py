@@ -16,7 +16,7 @@ st.markdown(
     <style>
     /* Set the full app background */
     .stApp {
-        background-color: #DDEEFF; /* Soft gray for main background */
+        background-color: #FFB26B; /* Soft gray for main background */
         color: #333333;           /* Dark gray for text for good contrast */
     }
     /* Style for headers */
