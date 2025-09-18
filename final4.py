@@ -51,7 +51,7 @@ st.markdown(
 
     /* Login button style for header */
     .login-btn {
-        background:#0066CC; color:blue; padding:8px 14px; border-radius:8px; font-weight:700;
+        background:#0066CC; color:white; padding:8px 14px; border-radius:8px; font-weight:700;
         border:none;
     }
     .login-btn:hover { background:#004C99; cursor:pointer; }
@@ -104,7 +104,7 @@ with header_cols[1]:
         """
         <div class="top-header">
             <div style="display:flex;align-items:center;gap:12px;">
-                <div style="width:36px;height:36px;border-radius:8px;background:#221f1f"></div>
+                <div style="width:36px;height:36px;border-radius:8px;background:white"></div>
                 <div style="font-weight:700;font-size:18px;">Kolam Konnect</div>
             </div>
             <div style="display:flex;gap:10px;align-items:center;">
