@@ -51,7 +51,7 @@ st.markdown(
 
     /* Login button style for header */
     .login-btn {
-        background:#0066CC; color:white; padding:8px 14px; border-radius:8px; font-weight:700;
+        background:#0066CC; color:blue; padding:8px 14px; border-radius:8px; font-weight:700;
         border:none;
     }
     .login-btn:hover { background:#004C99; cursor:pointer; }
