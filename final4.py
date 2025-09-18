@@ -21,7 +21,7 @@ st.markdown(
     <style>
     /* Page background: peach/pastel from screenshot */
     .stApp {
-        background: linear-gradient(180deg, #FFF8F0 0%, #FFECEC 100%);
+        background: linear-gradient(180deg, #FFF8F0 0%, #C9ADA7 100%);
         color: #FFD580;
     }
 
