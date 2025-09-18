@@ -22,7 +22,7 @@ st.markdown(
     /* Page background: peach/pastel from screenshot */
     .stApp {
         background: linear-gradient(180deg, #FFF8F0 0%, #FFECEC 100%);
-        color: #222222;
+        color: #FFD580;
     }
 
     /* Header (visual) */
